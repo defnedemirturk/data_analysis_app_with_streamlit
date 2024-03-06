@@ -58,6 +58,7 @@ def load_data(nrows):
 #load 100k rows of our data
 #data = load_data(nrows=100000)
 data = pd.read_csv(dataset, index_col=23)
+original_data = data    # will be used for further analysis
 
 # NEXT: We will use pandas to answer questions regarding our data
 # Q) Where in NYC are the most people injured in vehicle collisions?
