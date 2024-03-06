@@ -11,37 +11,25 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk 
 import plotly.express as px
+import os
 
-#specify the data URL
-#DATA_URL = ("../data/_your_file_name_here.csv")
-def download_file(url, filename):
-    """
-    Helper method handling downloading large files from `url` to `filename`. Returns a pointer to `filename`.
-    """
-    r = requests.get(url, stream=True)
-    with open(filename, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024): 
-            if chunk: # filter out keep-alive new chunks
-                f.write(chunk)
-    return filename
-
-dataset = download_file("https://data.cityofnewyork.us/api/views/h9gi-nx95/rows.csv?accessType=DOWNLOAD",
-                    "NYPD Motor Vehicle Collisions.csv")
-
+#specify the data URL and set up directories 
+current_directory = os.path.dirname(os.path.abspath(__file__))
+DATA_URL = os.path.join(current_directory, 'Motor_Vehicle_Collisions_-_Crashes.csv')
 
 #add title to our web application
-st.title("Motor Vehicle Collisions in new York City")
-st.markdown("This application is a Streamlit dashboard that can be used to analyze motor vehicle Collisions in NYC _enter_emoji_here")
+st.title("Motor Vehicle Collisions in New York City")
+st.markdown("This application is a Streamlit dashboard that can be used to analyze motor vehicle Collisions in NYC.")
 
 
 #to make the cpu cycle not add up quickly with the huge dataset:
 #we will add a decorator here to make it more efficient
-@st.cache(persist=True)	# we don't want to do the same computations everytime the app is run
+@st.cache_data(persist=True)	# we don't want to do the same computations everytime the app is run
 #define a function to load data of 1.6 million rows of data
 def load_data(nrows):
 	data = pd.read_csv(DATA_URL,
 						nrows=nrows,
-						parse_dates=[['CRASH_DATE', 'CRASH_TIME']]
+						parse_dates=[['CRASH DATE', 'CRASH TIME']]
 						)
 
 	#get a subset of data where longitude and latitude are not NA
@@ -50,14 +38,18 @@ def load_data(nrows):
 	#lowercase each of the column names using a lambda func.
 	lowercase = lambda x:str(x).lower()
 	data.rename(lowercase, axis='columns', inplace=True)
-	data.rename(columns={'crash_data_crash_time':'date/time'}, inplace=True)
+	print(data.columns)
+	# Replace spaces in column names with underscores
+	data.columns = data.columns.str.replace(' ', '_')
+	print(data.columns)
+	data.rename(columns={'crash_date_crash_time':'date/time'}, inplace=True)
+	#data.rename(columns={'number of persons injured':'injured_people'}, inplace=True)
 	return data
 
 
 
 #load 100k rows of our data
-#data = load_data(nrows=100000)
-data = pd.read_csv(dataset, index_col=23)
+data = load_data(nrows=100000)
 original_data = data    # will be used for further analysis
 
 # NEXT: We will use pandas to answer questions regarding our data
@@ -69,7 +61,9 @@ st.header("Where are the most people injured in NYC?")
 injured_people = st.slider("Number of people injured in vehicle collisions", 0, 19)
 # we can plot our data on a map regarding a column value in our dataset
 #here the @injure_people is the number specified in the slider widget
-st.map(data.query("injured_persons >= @injured_people")[["latitude", "longitude"]].dropna(how="any"))
+
+
+st.map(data.query("number_of_persons_injured >= @injured_people")[["latitude", "longitude"]].dropna(how="any"))
 # we have dropped any all rows with NA values if any of lat or long columns have them
 
 
@@ -118,10 +112,10 @@ filtered = data[
 ]
 
 # create a histogram of the crashes within the specified time range
-hist = np.histogram(filtered['date/time'].dt.minute, bins=60, range(0,60))[0]
-chart_data = pd.DataFrame({'minute':range(60), 'crashes':hist})
-figure = px.bar(chart_data, x='mu+inute', y='crashes', hover_data=['minute', 'crashes'], height=400)
-st.write(figure)
+#hist, a = np.histogram(filtered['date/time'].dt.minute, bins=60, range=range(0,60))
+#chart_data = pd.DataFrame({'minute':range(60), 'crashes':hist})
+#figure = px.bar(chart_data, x='minute', y='crashes', hover_data=['minute', 'crashes'], height=400)
+#st.write(figure)
 
 # lastly we query down top dangerous streets according to injury/collision types
 st.header("Top 5 dangerous streets by affected type")
@@ -130,13 +124,13 @@ selected = st.selectbox('Affected type of people', ['Pedestrians', 'Cyclists', '
 
 # display filtered dataset to the user in tables according to injury type
 if selected == 'Pedestrians':
-	st.write(original_data.query("injured_pedestrians >= 1")[["on_street_name", "injured_pedestrians"]].sort_values(by=['injured_pedestrians'], ascending=False).dropna(how='any'))
+	st.write(original_data.query("number_of_pedestrians_injured >= 1")[["on_street_name", "number_of_pedestrians_injured"]].sort_values(by=['number_of_pedestrians_injured'], ascending=False).dropna(how='any'))
 
 elif selected == 'Cyclists':
-	st.write(original_data.query("injured_cyclists >= 1")[["on_street_name", "injured_cyclists"]].sort_values(by=['injured_cyclists'], ascending=False).dropna(how='any'))
+	st.write(original_data.query("number_of_cyclists_injured >= 1")[["on_street_name", "number_of_cyclists_injured"]].sort_values(by=['number_of_cyclists_injured'], ascending=False).dropna(how='any'))
 
 else:
-	st.write(original_data.query("injured_motorists >= 1")[["on_street_name", "injured_motorists"]].sort_values(by=['injured_motorists'], ascending=False).dropna(how='any'))
+	st.write(original_data.query("number_of_motorists_injured >= 1")[["on_street_name", "number_of_motorists_injured"]].sort_values(by=['number_of_motorists_injured'], ascending=False).dropna(how='any'))
 
 # To enable the user to see the rwa data, we can add a checkbox widget to stremalit app and set it to be unchecked by default
 if st.checkbox("Show Raw Data", False):
