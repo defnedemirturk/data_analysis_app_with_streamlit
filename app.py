@@ -1,6 +1,7 @@
 # @author : Defne Demirtuerk
 # Python Streamlit web application for data visualization and manipulation using 
 # pandas, numpy and plotly.
+# This implementation is the final product of a Coursera Certification Project. 
 # The web application analyzes the motor vehicle Collisions in NYC.
 
 import streamlit as st
