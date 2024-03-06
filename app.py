@@ -38,10 +38,8 @@ def load_data(nrows):
 	#lowercase each of the column names using a lambda func.
 	lowercase = lambda x:str(x).lower()
 	data.rename(lowercase, axis='columns', inplace=True)
-	print(data.columns)
 	# Replace spaces in column names with underscores
 	data.columns = data.columns.str.replace(' ', '_')
-	print(data.columns)
 	data.rename(columns={'crash_date_crash_time':'date/time'}, inplace=True)
 	#data.rename(columns={'number of persons injured':'injured_people'}, inplace=True)
 	return data
@@ -127,10 +125,10 @@ if selected == 'Pedestrians':
 	st.write(original_data.query("number_of_pedestrians_injured >= 1")[["on_street_name", "number_of_pedestrians_injured"]].sort_values(by=['number_of_pedestrians_injured'], ascending=False).dropna(how='any'))
 
 elif selected == 'Cyclists':
-	st.write(original_data.query("number_of_cyclists_injured >= 1")[["on_street_name", "number_of_cyclists_injured"]].sort_values(by=['number_of_cyclists_injured'], ascending=False).dropna(how='any'))
+	st.write(original_data.query("number_of_cyclist_injured >= 1")[["on_street_name", "number_of_cyclist_injured"]].sort_values(by=['number_of_cyclist_injured'], ascending=False).dropna(how='any'))
 
 else:
-	st.write(original_data.query("number_of_motorists_injured >= 1")[["on_street_name", "number_of_motorists_injured"]].sort_values(by=['number_of_motorists_injured'], ascending=False).dropna(how='any'))
+	st.write(original_data.query("number_of_motorist_injured >= 1")[["on_street_name", "number_of_motorist_injured"]].sort_values(by=['number_of_motorist_injured'], ascending=False).dropna(how='any'))
 
 # To enable the user to see the rwa data, we can add a checkbox widget to stremalit app and set it to be unchecked by default
 if st.checkbox("Show Raw Data", False):
