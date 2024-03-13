@@ -1,4 +1,4 @@
-# Visual Data analysis and Data Manipulation with Plotly, Pandas and Stremlit
+# Visual Data analysis and Data Manipulation with Plotly, Pandas and Streamlit
 ------------
 This web application is a Python data analysis application to which you can ask questions regarding information on vehicle collisions that took place in 2024 in NYC. The dataset can be found at https://www.kaggle.com/datasets/tush32/motor-vehicle-collisions-crashes?resource=download This Streamlit data analysis application is created under the guidance of Snehan Kekre through Coursera Certification Project and implementation is updated according to the 2024 version of the dataset. 
 
